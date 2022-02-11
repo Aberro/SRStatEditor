@@ -69,16 +69,6 @@ namespace SRStatEditor
 		static CommandLineOptions Options { get; set; }
 		static int Main(string[] args)
 		{
-			args = new[]
-			{
-				//"--help",
-				"-i", "E:\\Games\\SteamLibrary\\steamapps\\common\\SovietRepublic\\media_soviet\\save_cloud\\30315 - Cosmonaut1\\stats.old_*.ini",
-				"-o", "E:\\Games\\SteamLibrary\\steamapps\\common\\SovietRepublic\\media_soviet\\save_cloud\\30315 - Cosmonaut1\\stats.ini",
-				"-h", "E:\\Games\\SteamLibrary\\steamapps\\common\\SovietRepublic\\media_soviet\\save_cloud\\30315 - Cosmonaut1\\header.bin",
-				"--records=2",
-				"--modify=-5",
-				"--compact=1940"
-			};
 			bool errors = false;
 			Parser.Default.ParseArguments<CommandLineOptions>(args)
 				.WithParsed<CommandLineOptions>(x => Options = x)
