@@ -1,3 +1,5 @@
+## Soviet Republic save game year changing tool
+
 ### Command line arguments:
 -i|--input=<path|paths> (required) - Input file path (usually, stats.ini). Could set multiple with semicolon separator, or with '*' symbol in filename for wildcard.  
 ATTENTION: if stat records overlap in time in multiple files, only values from preceding files are used, the ones in following files are ignored. Therefore, input files should be in chronological order.
