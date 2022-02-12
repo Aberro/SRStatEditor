@@ -11,6 +11,119 @@ namespace SRStatEditor
 {
 	static class Program
 	{
+		// Used to determine whether averaging or summ should be used for merging entries values.
+		// true for averaging (prices)
+		// false for summation (expenses)
+		static Dictionary<string, bool> averaging = new Dictionary<string, bool>()
+		{
+			{ "$Economy_PurchaseCostUSD", true },
+			{ "$Economy_PurchaseCostRUB", true },
+			{ "$Economy_SellCostUSD", true },
+			{ "$Economy_SellCostRUB", true },
+			{ "$Economy_BaseRUB", true },
+			{ "$Economy_BaseUSD", true },
+			{ "$Resources_ImportUSD", false },
+			{ "$Resources_SpendConstructions", false },
+			{ "$Resources_SpendFactories", false },
+			{ "$Resources_SpendShops", false },
+			{ "$Resources_SpendVehicles", false },
+			{ "$Vehicles_ImportUSD", false },
+			{ "$Vehicles_ImportRUB", false },
+			{ "$Vehicles_ExportUSD", false },
+			{ "$Resources_Produced", false },
+			{ "$Citizens_Born", false },
+			{ "$Citizens_Dead", false },
+			{ "$Citizens_Escaped", false },
+			{ "$Citizens_ImigrantSoviet", false },
+			{ "$Citizens_ImigrantAfrica", false },
+			{ "$Economy_ImigrantCitySpendRUB", false },
+			{ "$Economy_ImigrantCitySpendUSD", false },
+			{ "$Citizens_Status", true },
+			{ "$Citizens_AverageProductivity", true },
+			{ "$Citizens_AverageLifespan", true },
+			{ "$Citizens_AverageAge", true },
+			{ "$Citizens_SmallChilds", true },
+			{ "$Citizens_MediumChilds", true },
+			{ "$Citizens_AdultsParent", true },
+			{ "$Citizens_Adults", true },
+			{ "$Citizens_Unemployed", true },
+			{ "$Citizens_NoEducation", true },
+			{ "$Citizens_BasicEducationNum", true },
+			{ "$Citizens_HighEducationNum", true },
+			{ "$Citizens_EletronicNone", true },
+			{ "$Citizens_EletrinicRadio", true },
+			{ "$Citizens_EletronicTV", true },
+			{ "$Citizens_EletronicComputer", true },
+			{ "$Citizens_CarOwners", true },
+			{ "$Tourism_ToursitGeneratedUSD", false },
+			{ "$Tourism_ToursitGeneratedRUB", false },
+			{ "$Tourism_ToursitReturnedUSD", true },
+			{ "$Tourism_ToursitReturnedRUB", true },
+			{ "$Tourism_ToursitEnteredUSD", true },
+			{ "$Tourism_ToursitEnteredRUB", true },
+			{ "$Tourism_ToursitEndedUSD", true },
+			{ "$Tourism_ToursitEndedRUB", true },
+			{ "$Tourism_ToursitDiedUSD", true },
+			{ "$Tourism_ToursitDiedRUB", true },
+			{ "$Tourism_ToursitScoreUSD", true },
+			{ "$Tourism_ToursitScoreRUB", true },
+			{ "$Tourism_SpendUSD 0", false },
+			{ "$Tourism_SpendUSD 1", false },
+			{ "$Tourism_SpendUSD 2", false },
+			{ "$Tourism_SpendUSD 3", false },
+			{ "$Tourism_SpendUSD 4", false },
+			{ "$Tourism_SpendUSD 5", false },
+			{ "$Tourism_SpendUSD 6", false },
+			{ "$Tourism_SpendUSD 7", false },
+			{ "$Tourism_SpendUSD 8", false },
+			{ "$Tourism_SpendUSD 9", false },
+			{ "$Tourism_SpendUSD 10", false },
+			{ "$Tourism_SpendUSD 11", false },
+			{ "$Tourism_SpendUSD 12", false },
+			{ "$Tourism_SpendUSD 13", false },
+			{ "$Tourism_SpendUSD 14", false },
+			{ "$Tourism_SpendUSD 15", false },
+			{ "$Tourism_SpendRUB 0", false },
+			{ "$Tourism_SpendRUB 1", false },
+			{ "$Tourism_SpendRUB 2", false },
+			{ "$Tourism_SpendRUB 3", false },
+			{ "$Tourism_SpendRUB 4", false },
+			{ "$Tourism_SpendRUB 5", false },
+			{ "$Tourism_SpendRUB 6", false },
+			{ "$Tourism_SpendRUB 7", false },
+			{ "$Tourism_SpendRUB 8", false },
+			{ "$Tourism_SpendRUB 9", false },
+			{ "$Tourism_SpendRUB 10", false },
+			{ "$Tourism_SpendRUB 11", false },
+			{ "$Tourism_SpendRUB 12", false },
+			{ "$Tourism_SpendRUB 13", false },
+			{ "$Tourism_SpendRUB 14", false },
+			{ "$Tourism_SpendRUB 15", false },
+			{ "$Tourism_SpendShopsUSD", false },
+			{ "$Tourism_SpendShopsRUB", false },
+			{ "$Tourism_SpendCinemasUSD", false },
+			{ "$Tourism_SpendCinemasRUB", false },
+			{ "$Tourism_SpendPubsUSD", false },
+			{ "$Tourism_SpendPubsRUB", false },
+			{ "$Tourism_SpendSportUSD", false },
+			{ "$Tourism_SpendSportRUB", false },
+			{ "$Tourism_SpendHotelsUSD", false },
+			{ "$Tourism_SpendHotelsRUB", false },
+			{ "$Tourism_SpendRidesUSD", false },
+			{ "$Tourism_SpendRidesRUB", false },
+			{ "Crime_Executed_0", false },
+			{ "Crime_Executed_1", false },
+			{ "Crime_Executed_2", false },
+			{ "Crime_Executed_3", false },
+			{ "Crime_Executed_4", false },
+			{ "Crime_Error_NoPolice", false },
+			{ "Crime_Error_NotInvestigated", false },
+			{ "Crime_Error_NotCourt", false },
+			{ "Crime_Prisoners_Escaped", false },
+
+			//{ "$", false },
+			//{ "$", true },
+		};
 		[Verb("default", isDefault: true)]
 		public class CommandLineOptions
 		{
@@ -131,7 +244,7 @@ namespace SRStatEditor
 				var startDate = entries.First().Date;
 				var factor = (endDate - Options.CompactYears.Value)/(endDate - startDate);
 				foreach (var entry in entries)
-					entry.Date = Options.CompactYears.Value + (endDate - entry.Date) * factor;
+					entry.Date = endDate + (entry.Date - endDate) * factor;
 			}
 			ModifyHeader(Options.Header, (int)Math.Floor(endDate));
 			entries = DoMinimize(entries).OrderBy(x => x.Date).ToArray();
@@ -192,61 +305,96 @@ namespace SRStatEditor
 		{
 			// Nothing to change
 			if (Options.Records == null)
-				return entries;
+				foreach(var entry in entries)
+					yield return entry;
 			var max_year = entries.Max(x => x.Year);
 			var threshold_year = max_year - Options.Unchanged;
 			// Yet again, nothing to change.
 			if (entries.First().Year > threshold_year)
-				return entries;
-			return entries.Select(x => (BelowThreshold: x.Year < max_year - Options.Unchanged, Entry: x))
+				foreach (var entry in entries)
+					yield return entry;
+			// first record is always "empty" - it has no import/export statistics
+			var minDate = entries.First().Date;
+			var query = entries.Skip(1)
+				.Select(x => (BelowThreshold: x.Year <= max_year - Options.Unchanged, Entry: x))
 				.GroupBy(x =>
 					x.BelowThreshold) // this results in two groups: entries that below threshold and above it.
 				.SelectMany(x => x.Key // this would merge them back
 					? x.Select(y => y.Entry) // this removed BelowThreshold from enumeration
 						.GroupBy(y => y.Year) // this groups entries by year
-						.Select(MinimizeYear) // this will calculate averages and leave only MinimizeArgs.Records number of records per year.
+						.Select(y => MinimizeYear(y, minDate)) // this will calculate averages and leave only MinimizeArgs.Records number of records per year.
 						.SelectMany(y => y)
 					: x.Select(y => y.Entry));
+			// Return that first "empty" entry.
+			yield return entries.First();
+			// And then return our minimized result
+			foreach (var entry in query)
+				yield return entry;
 		}
-		private static IEnumerable<StatEntry> MinimizeYear(IGrouping<int, StatEntry> year)
+		private static IEnumerable<StatEntry> MinimizeYear(IGrouping<int, StatEntry> year, double minDate)
 		{
 			var range = 365.25 * (1.0 / Options.Records!.Value);
 			return year.GroupBy(x => (int)Math.Floor(x.Day / range)) // group by range
-				.Select(x => Average(x, (int)Math.Floor(x.Key * range))); // convert whole range by averaging entry values
+				.Select(x => Merge(x, (int)Math.Floor(x.Key * range), minDate)); // convert whole range by averaging entry values
 		}
-		private static StatEntry Average(IEnumerable<StatEntry> range, int day)
+		// range is range of entries that require merging into a single entry
+		// day is the $ENTRY_DAY value of resulting entry
+		private static StatEntry Merge(IEnumerable<StatEntry> range, int day, double minDate)
 		{
+			// used for linq incrementing indices, simple action but with ref.
 			static void Increment(ref int i)
 			{
 				i++;
 			}
 			StatEntry resultEntry = new StatEntry() { Day = day, Year = range.First().Year };
+			if (resultEntry.Date < minDate)
+			{
+				resultEntry.Date = minDate;
+				resultEntry.Day++;
+			}
 			var statEntries = range as StatEntry[] ?? range.ToArray();
-			var indices = new int[statEntries.Length];
+			var indices = new int[statEntries.Length]; // indices to lines in each entry, required to merge enumerations with different line count
+			bool mergingByAveraging = false; // merging technique, true - average, false - summ.
 			while (true)
 			{
+				// Group (presumably same) lines from multiple stats together
 				var lineGrp = statEntries.Select((x, i) => (x, i)).GroupBy(x => x.x.Lines[indices[x.i]].Entry);
-				if (lineGrp.Count() == 1) // Ensure that indexed line is same in each entry.
+				var lineEntry = lineGrp.First().Key;
+				// Choose merging technique by line entries occurence in `averading` map.
+				// For enumerations, merging technique would stay the same across entire enumeration,
+				// because no line entry would be found in `averaging` map.
+				if (averaging.TryGetValue(lineEntry, out var merging))
 				{
-					// Try simple form for speed
+					mergingByAveraging = merging;
+				}
+				// Check if lines are actually same
+				if (lineGrp.Count() == 1)
+				{
+					// If lines in each statistics entry has same line entry,
+					// use simple form for speed
 					var lineGroup = lineGrp.First();
+					
 					if (string.IsNullOrEmpty(lineGroup.Key))
+						// Skip empty lines beforehand
 						resultEntry.Lines.Add((lineGroup.Key, null));
 					else if (lineGroup.Key.Equals("$DATE_DAY"))
+						// Skip days, those don't require merging
 						resultEntry.Lines.Add(("$DATE_DAY", new object[] { day }));
 					else if (lineGroup.Key.Equals("$DATE_YEAR"))
+						// Skip year for same reason
 						resultEntry.Lines.Add(("$DATE_YEAR", new object[] { lineGroup.First().x.Year }));
 					else
+						// And what's left may require merging
 						resultEntry.Lines.Add((lineGroup.Key,
-							AverageLineValues(lineGroup.Select(x => x.x.Lines[indices[x.i]].Values))));
+							MergeLineValues(lineGroup.Select(x => x.x.Lines[indices[x.i]].Values), mergingByAveraging)));
 				}
 				else
 				{
-					// If simple form has failed, check if we are in an enumeration
+					// If simple form had failed, check if we are in an enumeration
+					// That means that each line currently either inside enumeration or at it's end:
 					if (lineGrp.All(x => x.Key.Equals("$end") || x.Key.StartsWith("   ")))
 					{
 						// Now we need to correspond values of each entry in an enumeration of each stat entry.
-						// All indices should be inside or at the end of an enumeration
 						var enumerationEntries = new Dictionary<string, (double, double)>(); // here we will accumulate all available values
 						for (int i = 0; i < statEntries.Length; i++)
 						{
@@ -268,21 +416,28 @@ namespace SRStatEditor
 							}
 						}
 						foreach (var entry in enumerationEntries)
-							resultEntry.Lines.Add((entry.Key, new object[] { entry.Value.Item1 / statEntries.Length, entry.Value.Item2 / statEntries.Length }));
+								resultEntry.Lines.Add((entry.Key, new object[]
+								{
+									mergingByAveraging ? entry.Value.Item1 / statEntries.Length : entry.Value.Item1,
+									mergingByAveraging ? entry.Value.Item2 / statEntries.Length : entry.Value.Item2
+								}));
+						resultEntry.Lines.Add(("$end", new object[0]));
 
 					}
 					else
 					{
-
+						// This is not an enumeration, I don't know how to merge stat entries...
+						Console.WriteLine(
+							"Unexpected statistics layout! Create a new issue here: https://github.com/Aberro/SRStatEditor/issues and attach your save game archive");
+						throw new Exception();
 					}
-
 				}
 				indices.ForEach(Increment);
 				if (statEntries.Select((x, i) => (x, i)).All(x => indices[x.i] >= x.x.Lines.Count))
 					return resultEntry;
 			}
 		}
-		private static object[]? AverageLineValues(IEnumerable<object[]?> values)
+		private static object[]? MergeLineValues(IEnumerable<object[]?> values, bool mergingByAveraging)
 		{
 			var valuesArray = values as object[]?[] ?? values.ToArray();
 			if (valuesArray.First() == null)
@@ -301,13 +456,17 @@ namespace SRStatEditor
 				{
 					if (valuesArray.Any(x => !(x![i] is int)))
 						throw new ApplicationException("Unexpected line value types discrepancy!");
-					result[i] = valuesArray.Select(x => x![i]).Cast<int>().Average();
+					result[i] = mergingByAveraging
+						? (int)valuesArray.Select(x => x![i]).Cast<int>().Average()
+						: (int)valuesArray.Select(x => x![i]).Cast<int>().Sum();
 				}
 				else if (valuesArray.First()![i] is double)
 				{
 					if (valuesArray.Any(x => !(x![i] is double)))
 						throw new ApplicationException("Unexpected line value types discrepancy!");
-					result[i] = valuesArray.Select(x => x![i]).Cast<double>().Average();
+					result[i] = mergingByAveraging
+						? valuesArray.Select(x => x![i]).Cast<double>().Average()
+						: valuesArray.Select(x => x![i]).Cast<double>().Sum();
 				}
 				else if (valuesArray.First()![i] is string)
 				{
@@ -322,12 +481,12 @@ namespace SRStatEditor
 			string all_text;
 			using (var reader = System.IO.File.OpenText(path))
 				all_text = reader.ReadToEnd();
-			var cityIdx = all_text.IndexOf("$STAT_CURRENT");
+			var outroIdx = all_text.IndexOf("$STAT_CURRENT");
 			string outro = "";
-			if (cityIdx >= 0)
+			if (outroIdx >= 0)
 			{
-				outro = all_text.Substring(cityIdx);
-				all_text = all_text.Substring(0, cityIdx);
+				outro = all_text.Substring(outroIdx);
+				all_text = all_text.Substring(0, outroIdx);
 				if (Options.ModifyYears != null && Options.ModifyYears != 0)
 				{
 					var idx = 0;
@@ -441,6 +600,19 @@ namespace SRStatEditor
 				if (it.Current!.Length == 0)
 				{
 					spaces++;
+					continue;
+				}
+				// Very bad case for merging entries - one value needs averaging
+				// (actually, just to stay same), second value needs summation.
+				// This is clutch, but best one I could think of:
+				// just merge first value into line entry.
+				if (it.Current!.Equals("$Tourism_SpendUSD")
+				    || it.Current!.Equals("$Tourism_SpendRUB"))
+				{
+					var new_entry = it.Current + " ";
+					if (!it.MoveNext())
+						throw new ArgumentException("This actually should never be thrown... Something is very wrong in stats.ini file!");
+					yield return new_entry + it.Current;
 					continue;
 				}
 				yield return new String(' ', spaces) + it.Current;
