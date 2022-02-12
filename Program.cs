@@ -60,7 +60,7 @@ namespace SRStatEditor
 				set
 				{
 					Year = (int) Math.Floor(value);
-					Day = (int) Math.Round(Math.Truncate(value) * 365.25);
+					Day = (int) Math.Round((value-Math.Truncate(value)) * 365.25);
 				}
 			}
 			public List<(string Entry, object[]? Values)> Lines { get; } = new List<(string Entry, object[]? Value)>();
