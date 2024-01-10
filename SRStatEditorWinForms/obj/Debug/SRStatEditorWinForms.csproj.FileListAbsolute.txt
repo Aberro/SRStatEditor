@@ -1,0 +1,17 @@
+E:\Repo\SRStatEditor\SRStatEditorWinForms\obj\Debug\SRStatEditorWinForms.csproj.AssemblyReference.cache
+E:\Repo\SRStatEditor\SRStatEditorWinForms\obj\Debug\SRStatEditorWinForms.csproj.SuggestedBindingRedirects.cache
+E:\Repo\SRStatEditor\SRStatEditorWinForms\obj\Debug\SRStatEditorWinForms.Form1.resources
+E:\Repo\SRStatEditor\SRStatEditorWinForms\obj\Debug\SRStatEditorWinForms.Properties.Resources.resources
+E:\Repo\SRStatEditor\SRStatEditorWinForms\obj\Debug\SRStatEditorWinForms.csproj.GenerateResource.cache
+E:\Repo\SRStatEditor\SRStatEditorWinForms\obj\Debug\SRStatEditorWinForms.csproj.CoreCompileInputs.cache
+E:\Repo\SRStatEditor\SRStatEditorWinForms\bin\Debug\SRStatEditorWinForms.exe.config
+E:\Repo\SRStatEditor\SRStatEditorWinForms\bin\Debug\SRStatEditorWinForms.exe
+E:\Repo\SRStatEditor\SRStatEditorWinForms\bin\Debug\SRStatEditorWinForms.pdb
+E:\Repo\SRStatEditor\SRStatEditorWinForms\bin\Debug\SRStatEditor.exe
+E:\Repo\SRStatEditor\SRStatEditorWinForms\bin\Debug\CommandLine.dll
+E:\Repo\SRStatEditor\SRStatEditorWinForms\bin\Debug\SRStatEditor.pdb
+E:\Repo\SRStatEditor\SRStatEditorWinForms\bin\Debug\SRStatEditor.exe.config
+E:\Repo\SRStatEditor\SRStatEditorWinForms\bin\Debug\CommandLine.xml
+E:\Repo\SRStatEditor\SRStatEditorWinForms\obj\Debug\SRStatEditorWinForms.csproj.CopyComplete
+E:\Repo\SRStatEditor\SRStatEditorWinForms\obj\Debug\SRStatEditorWinForms.exe
+E:\Repo\SRStatEditor\SRStatEditorWinForms\obj\Debug\SRStatEditorWinForms.pdb
